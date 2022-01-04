@@ -1,0 +1,8 @@
+Django
+djangorestframework
+mysqlclient
+django-mysql
+django-cors-headers
+pika
+psycopg2>=2.8
+django-admin-interface
