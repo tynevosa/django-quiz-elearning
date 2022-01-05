@@ -36,7 +36,7 @@ class QuestionAdmin(admin.ModelAdmin):
     image_tag.short_description = 'Image'
 
 
-class QuestionAdminInline(admin.TabularInline):
+class QuestionAdminInline(admin.StackedInline):
     model = Question
     extra = 1
 

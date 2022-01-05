@@ -3,8 +3,6 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.dispatch.dispatcher import receiver
 from django.db.models.signals import pre_save
-import uuid
-import os
 from .helpers import RandomFileName
 
 
