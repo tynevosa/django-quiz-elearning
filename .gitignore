@@ -4,6 +4,9 @@
 ### DATABASE Docker files ###
 .mysql
 
+### Uploaded files ###
+uploads
+
 ### Django ###
 *.log
 *.pot

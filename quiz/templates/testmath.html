@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <script> MathJax = { loader: {load: ['input/asciimath', 'output/chtml']} } </script>
+
+    <script>
+        document.addEventListener('load', function(){
+            MathJax.typeset()
+        })
+        try {
+            setTimeout(()=>{
+                // let demoSource = document.getElementsByClassName("demoSource")[0]
+                // let renderedMathJax = document.getElementById("renderedMathJax")
+                // if(demoSource){
+                //     demoSource.oninput = function() {
+                //         console.log(event.target.value)
+                //         renderedMathJax.innerText = event.target.value
+                //         MathJax.typesetClear();
+                //         MathJax.typeset();
+                //     }
+                // }
+            }, 100)
+        } catch (error) {
+        }
+    </script>
+    <title>
+        {% block page_title %} 
+            Quiz
+        {% endblock page_title %}
+    </title>
+
+    {% block header_tags %}
+
+    {% endblock header_tags %}
+
+</head>
+
+<body>
+    <input class="demoSource">  </input>
+    <div id="renderedMathJax"> 123 </div>
+    {% block content %}
+
+    {% endblock content %}
+</body>
+
+</html>
