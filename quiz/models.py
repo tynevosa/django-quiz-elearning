@@ -45,7 +45,10 @@ class Question(models.Model):
     def __str__(self):
         return self.body
 
-    def get_absolute_url(self):
+    def get_admin_url(self):
+        return reverse("admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=(self.id,))
+
+    def get_site_url(self):
         return reverse("question_detail", kwargs={"pk": self.pk})
 
 
@@ -61,8 +64,8 @@ class Choice(models.Model):
         Question, on_delete=models.CASCADE, related_name="topics"
     )
 
-    def get_absolute_url(self):
-        return reverse("choice_detail", kwargs={"pk": self.pk})
+    # def get_site_url(self):
+    #     return reverse("choice_detail", kwargs={"pk": self.pk})
 
 
 @receiver(pre_save, sender=Question)

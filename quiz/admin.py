@@ -4,6 +4,7 @@ from django.db import models
 from quiz.forms import QuestionAdminForm
 from quiz.widgets import AdminImageWidget
 from django.utils.html import format_html
+from django.urls.base import reverse
 
 
 # Register your models here.
@@ -19,7 +20,7 @@ class ChoiceAdminInline(admin.TabularInline):
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     list_filter = ('type', 'category', 'type', 'difficulty')
-    list_display = ('body', 'image_tag', 'type', 'difficulty', 'category')
+    list_display = ('body', 'image_tag', 'type', 'difficulty', 'category', 'action_tag')
     search_fields = ('body',)
     form = QuestionAdminForm
     inlines = [ChoiceAdminInline]
@@ -35,6 +36,10 @@ class QuestionAdmin(admin.ModelAdmin):
 
     image_tag.short_description = 'Image'
 
+    def action_tag(self, obj):
+        return format_html(f'<a href="{obj.get_admin_url()}" title="View"> <i class="fas fa-eye fa-sm"></i> </a>')
+
+    action_tag.short_description = ''
 
 class QuestionAdminInline(admin.StackedInline):
     model = Question
