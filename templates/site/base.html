@@ -6,14 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script> MathJax = { loader: {load: ['input/asciimath', 'output/chtml']} } </script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js"></script>
-    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-
     <title>
-        {% block page_title %} 
-            Quiz
+        {% block page_title %}
+        Quiz
         {% endblock page_title %}
     </title>
 
@@ -24,10 +19,13 @@
 </head>
 
 <body>
-    <h2> `{{ e1 }}` </h2>
     {% block content %}
 
     {% endblock content %}
+
+    <script> MathJax = { loader: { load: ['input/asciimath', 'output/chtml'] } } </script>
+    <script defer type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js"></script>
 </body>
 
 </html>

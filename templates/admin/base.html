@@ -1,5 +1,5 @@
 {% extends 'admin/base.html' %}
-    
+
 {% block extrahead %}{{ block.super }}
 <style>
     :root {
@@ -11,10 +11,27 @@
         --body-bg: #fff;
         --body-quiet-color: #666;
         --body-loud-color: #000;
-        --darkened-bg: #f8f8f8; /* A bit darker than --body-bg */
-        --selected-bg: #e4e4e4; /* E.g. selected table cells */
+        --darkened-bg: #f8f8f8;
+        /* A bit darker than --body-bg */
+        --selected-bg: #e4e4e4;
+        /* E.g. selected table cells */
         --selected-row: #ffc;
     }
-
 </style>
+<script> MathJax = { loader: { load: ['input/asciimath', 'output/chtml'] } } </script>
+<script defer type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js"></script>
+<script>
+    setTimeout(() => {
+        let demoSource = document.getElementsByClassName("vLargeTextField")[0]
+        let renderedMathJax = document.getElementsByClassName("renderedMathJax")[0]
+        if (demoSource) {
+            demoSource.oninput = function () {
+                renderedMathJax.innerText = event.target.value
+                MathJax.typesetClear();
+                MathJax.typeset();
+            }
+        }
+    }, 100)
+</script>
 {% endblock %}

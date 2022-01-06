@@ -1,8 +1,9 @@
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from django.dispatch.dispatcher import receiver
-from django.db.models.signals import pre_save
+
 from .helpers import RandomFileName
 
 
@@ -43,7 +44,7 @@ class Question(models.Model):
 
     # Methods
     def __str__(self):
-        return self.body
+        return self.pk.__str__()
 
     def get_admin_url(self):
         return reverse("admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=(self.id,))
