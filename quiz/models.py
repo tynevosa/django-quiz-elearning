@@ -32,14 +32,14 @@ class Question(models.Model):
         mcq = 1
         final_answer = 2
 
-    DIFFICULTY_CHOICES = ((1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'), (6, '6'), (7, '7'), (8, '8'), (9, '9'), (10, '10'))
+    DIFFICULTY_CHOICES = zip(range(1, 10), range(1, 10))
 
     # Fields
     body = models.TextField(blank=True)
     image = models.ImageField(upload_to=RandomFileName("questions"), null=True, blank=True)
     difficulty = models.PositiveSmallIntegerField(choices=DIFFICULTY_CHOICES, default='5', db_index=True)
     correct_answer = models.CharField(max_length=200)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="topics")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="question_category")
     type = models.IntegerField(choices=QuestionType.choices, default=QuestionType.mcq)
 
     # Methods
@@ -62,7 +62,7 @@ class Choice(models.Model):
     body = models.TextField(blank=True)
     image = models.ImageField(upload_to=RandomFileName("choices"), null=True, blank=True)
     question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name="topics"
+        Question, on_delete=models.CASCADE, related_name="choice_question"
     )
 
     # def get_site_url(self):
@@ -90,6 +90,29 @@ class Answer(models.Model):
 
     def get_site_url(self):
         return reverse("answer_detail", kwargs={"pk": self.pk})
+
+
+class Score(models.Model):
+
+    class Meta:
+        verbose_name = _("score")
+        verbose_name_plural = _("scores")
+
+    SCORE_CHOICES = zip(range(0, 100), range(0, 100))
+    value = models.PositiveSmallIntegerField(choices=SCORE_CHOICES, default=0)
+
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="score_category")
+    student = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE)
+
+    # Methods
+    def __str__(self):
+        return self.score
+
+    def get_admin_url(self):
+        return reverse("admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=(self.id,))
+
+    def get_site_url(self):
+        return reverse("score_detail", kwargs={"pk": self.pk})
 
 
 @receiver(pre_save, sender=Question)
