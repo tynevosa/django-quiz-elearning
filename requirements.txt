@@ -7,3 +7,4 @@ pika
 psycopg2>=2.8
 django-admin-interface
 django-jazzmin
+django-extensions
