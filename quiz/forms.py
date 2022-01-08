@@ -1,6 +1,15 @@
 from django import forms
 
-from quiz.models import Question
+from quiz.models import Answer
+
+
+class SubmitQuestionAnswer(forms.ModelForm):
+
+    class Meta:
+        model = Answer
+        fields = ('student_answer',)
+
+    student_answer = forms.CharField(label='Your Answer', max_length=100, min_length=1, required=True)
 
 
 class QuestionAdminForm(forms.ModelForm):

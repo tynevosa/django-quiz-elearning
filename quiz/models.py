@@ -37,7 +37,7 @@ class Question(models.Model):
     # Fields
     body = models.TextField(blank=True)
     image = models.ImageField(upload_to=RandomFileName("questions"), null=True, blank=True)
-    difficulty = models.PositiveSmallIntegerField(choices=DIFFICULTY_CHOICES, default='5')
+    difficulty = models.PositiveSmallIntegerField(choices=DIFFICULTY_CHOICES, default='5', db_index=True)
     correct_answer = models.CharField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="topics")
     type = models.IntegerField(choices=QuestionType.choices, default=QuestionType.mcq)
@@ -67,6 +67,29 @@ class Choice(models.Model):
 
     # def get_site_url(self):
     #     return reverse("choice_detail", kwargs={"pk": self.pk})
+
+
+class Answer(models.Model):
+
+    class Meta:
+        verbose_name = _("answer")
+        verbose_name_plural = _("answers")
+
+    # Fields
+    student_answer = models.TextField(_("Answer"))
+    student = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE)
+    is_correct = models.BooleanField(_("Correct?"))
+    question = models.ForeignKey("quiz.Question", verbose_name=_("Question"), on_delete=models.CASCADE)
+
+    # Methods
+    def __str__(self):
+        return self.student_answer
+
+    def get_admin_url(self):
+        return reverse("admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=(self.id,))
+
+    def get_site_url(self):
+        return reverse("answer_detail", kwargs={"pk": self.pk})
 
 
 @receiver(pre_save, sender=Question)

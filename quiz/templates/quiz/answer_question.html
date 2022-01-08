@@ -1,0 +1,20 @@
+{% extends 'site/base.html' %}
+
+<!-- Start Content Block -->
+{% block content %}
+
+{{question.body}}
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+</form>
+<ul>
+    {% for question in object_list %}
+        <li>{{question.body}}</li>
+    {% endfor %}
+</ul>
+
+{% endblock content %}
+<!-- End Content Block -->
