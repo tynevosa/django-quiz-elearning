@@ -34,6 +34,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'quiz',
     'jazzmin',
+    'tailwind',
+    'theme',
     'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -125,6 +127,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -275,3 +278,10 @@ JAZZMIN_SETTINGS = {
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/home/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+# Tailwind
+TAILWIND_APP_NAME = 'theme'
+TAILWIND_DEV_MODE = DEBUG
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
