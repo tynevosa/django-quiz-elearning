@@ -1,0 +1,41 @@
+{% extends 'site/base.html' %}
+{% load static %}
+
+{% block header_tags %}
+{% endblock header_tags %}
+
+<!-- Start Content Block -->
+{% block content %}
+
+{% if category_list %}
+<div class="items-start justify-center grid gap-5"
+    style="grid-template-columns: repeat(auto-fill, minmax(400px, 600px));">
+    {% for category in category_list %}
+    <div class="bg-white p-10 rounded-lg shadow-md h-15">
+        <h1 class="text-xl font-bold">{{ category.name }}</h1>
+        <div class="mt-6 mb-2">Total Score:
+            <span class="font-bold">
+                {% if category.student_score.0.value is not none %} {{category.student_score.0.value}}
+                {% else %} 0
+                {% endif %}
+            </span>
+        </div>
+        <div class="mt-4 mb-5">
+            <div class="bg-gray-400 w-4/5 h-3 rounded-lg mt-2 overflow-hidden">
+                <div class="bg-emerald-400 w-1/4 h-full rounded-lg shadow-md"></div>
+            </div>
+        </div>
+        <div class="flex justify-center align-middle">
+            <a class="bg-sky-600 py-3 px-8 mt-4 rounded text-sm font-semibold text-white hover:bg-opacity-75 justify-self-center"
+                href="{% url 'quiz:answer_question' category.id %}">Start Quiz
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>No polls are available.</p>
+{% endif %}
+
+{% endblock content %}
+<!-- End Content Block -->

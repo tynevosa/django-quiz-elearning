@@ -43,6 +43,20 @@ def register(request):
     return render(request, 'registration/register.html', {'form': form})
 
 
+from django.core import serializers
+
+
+class CategoryListView(LoginRequiredMixin, ListView):
+    model = Category
+    template_name = "quiz/category_list.html"
+    context_object_name = 'category_list'
+
+    def get_queryset(self):
+        return  Category.objects \
+            .prefetch_related(Prefetch('score_category', queryset=Score.objects.filter(student=self.request.user), to_attr='student_score')) \
+            .all()
+
+
 class AnswerQuestionView(LoginRequiredMixin, View):
 
     def get(self, request, category_id):

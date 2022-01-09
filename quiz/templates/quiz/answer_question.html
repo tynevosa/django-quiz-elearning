@@ -2,19 +2,21 @@
 
 <!-- Start Content Block -->
 {% block content %}
+<div class="text-center">
+    {{question.body}}
+    <ul>
+        <li>{{choice.body}}</li>
+        {% for choice in question.choice_question.all %}
+            <li>{{choice.body}}</li>
+        {% endfor %}
+    </ul>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Submit Answer">
+    </form>
 
-{{question.body}}
-
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit">
-</form>
-<ul>
-    {% for question in object_list %}
-        <li>{{question.body}}</li>
-    {% endfor %}
-</ul>
+</div>
 
 {% endblock content %}
 <!-- End Content Block -->
