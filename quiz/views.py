@@ -3,12 +3,15 @@ import random
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.db import connection
+from django.db.models import Max
+from django.db.models.query import Prefetch
 from django.db.models.query_utils import FilteredRelation, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.list import ListView
 
 from quiz.forms import SubmitQuestionAnswer
 from quiz.models import Category, Question, Score
@@ -50,7 +53,7 @@ class AnswerQuestionView(LoginRequiredMixin, View):
         try:
             student_score = Score.objects.get(student=request.user)
         except:
-            student_score = Score.objects.create(category= category, student=request.user)
+            student_score = Score.objects.create(category=category, student=request.user)
         finally:
             current_question = self.__get_student_next_question(category_id, request.user.id, student_score.value)
             self.__set_question_in_cache(category_id, request.user.id, current_question.pk)
@@ -105,11 +108,13 @@ class AnswerQuestionView(LoginRequiredMixin, View):
         cache_key = self.__get_question_cache_key(category_id, student_id)
         cached_question_id = cache.get(cache_key)
 
-        if(use_cache and cached_question_id is not None): return Question.objects.get(pk=cached_question_id)
+        if(use_cache and cached_question_id is not None): 
+            return Question.objects.prefetch_related('choice_question').get(pk=cached_question_id)
 
         difficulty_level = student_score / 10
 
-        query = Question.objects.annotate(answered=FilteredRelation('answer', condition=Q(answer__student=student_id,)),)
+        query = Question.objects.prefetch_related('choice_question') \
+            .annotate(answered=FilteredRelation('answer_question', condition=Q(answer_question__student=student_id,)),)
 
         # Unsolved questions based on difficulty
         current_question = query \
@@ -119,11 +124,15 @@ class AnswerQuestionView(LoginRequiredMixin, View):
 
         if(current_question is not None): return current_question
 
-        # Get a random one of the already solved ones
+        # Get a random one of the already incorrectly solved ones
         randomSolvedQuestions = query \
-            .filter(Q(answered__isnull=False) | Q(answered__is_correct=False), category_id=category_id,) \
+            .annotate(final_attempt_is_correct=Max('answered__is_correct')) \
+            .filter(Q(answered__isnull=False) | Q(answered__is_correct=False), category_id=category_id, final_attempt_is_correct__lt=1) \
+            .values('id','body', 'category_id', 'correct_answer', 'difficulty', 'image', 'type', 'correct_answer', 'answered__student_id', 'answered__question_id', 'final_attempt_is_correct') \
+            .order_by('difficulty') \
             .all()[:10]
 
-        current_question = random.choice(list(randomSolvedQuestions))
+
+        current_question = Question.objects.get(pk=random.choice(list(randomSolvedQuestions))['id'])
 
         return current_question
