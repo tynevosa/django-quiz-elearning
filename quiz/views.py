@@ -4,9 +4,11 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.core.cache import cache
+from django.db import connection
 from django.db.models.query_utils import FilteredRelation, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from quiz.forms import SubmitQuestionAnswer
 from quiz.models import Category, Question, Score
@@ -38,7 +40,7 @@ def register(request):
     return render(request, 'registration/register.html', {'form': form})
 
 
-class AnswerQuestionView(View):
+class AnswerQuestionView(LoginRequiredMixin, View):
 
     def get(self, request, category_id):
         form = SubmitQuestionAnswer()
@@ -70,15 +72,9 @@ class AnswerQuestionView(View):
         answer.is_correct = answer.student_answer == current_question.correct_answer
         answer.student = request.user
         answer.question = current_question
-
-        if answer.is_correct:
-            student_score.value += current_question.difficulty
-            student_score.value = min(student_score.value, 100)
-        else :
-            student_score.value -= current_question.difficulty
-            student_score.value = max(student_score.value, 0)
-
         answer.save()
+
+        student_score.value = self.__evaluate_new_score(answer.is_correct, current_question.difficulty, student_score.value)
         student_score.save()
 
         self.__remove_question_form_cache(category_id, request.user.id)
@@ -96,6 +92,15 @@ class AnswerQuestionView(View):
         cache_key = self.__get_question_cache_key(category_id, student_id)
         cache.delete(cache_key)
 
+    def __evaluate_new_score(self, is_correct, difficulty, score_value):
+        if is_correct:
+            score_value += difficulty
+            score_value = min(score_value, 100)
+        else :
+            score_value -= difficulty
+            score_value = max(score_value, 0)
+        return score_value
+
     def __get_student_next_question(self, category_id, student_id, student_score, use_cache=True):
         cache_key = self.__get_question_cache_key(category_id, student_id)
         cached_question_id = cache.get(cache_key)
@@ -104,11 +109,11 @@ class AnswerQuestionView(View):
 
         difficulty_level = student_score / 10
 
-        query = Question.objects.annotate(answered=FilteredRelation('answer', condition=Q(answer__student__exact=student_id,)),)
+        query = Question.objects.annotate(answered=FilteredRelation('answer', condition=Q(answer__student=student_id,)),)
 
         # Unsolved questions based on difficulty
         current_question = query \
-            .filter(category_id__exact=category_id, answered__isnull=True, difficulty__gte=difficulty_level) \
+            .filter(category_id=category_id, answered__isnull=True, difficulty__gte=difficulty_level) \
             .order_by('difficulty') \
             .first()
 
@@ -116,7 +121,7 @@ class AnswerQuestionView(View):
 
         # Get a random one of the already solved ones
         randomSolvedQuestions = query \
-            .filter(category_id__exact=category_id, answered__isnull=False, answered__is_correct__exact=False) \
+            .filter(Q(answered__isnull=False) | Q(answered__is_correct=False), category_id=category_id,) \
             .all()[:10]
 
         current_question = random.choice(list(randomSolvedQuestions))

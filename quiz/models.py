@@ -106,7 +106,7 @@ class Score(models.Model):
 
     # Methods
     def __str__(self):
-        return self.score
+        return self.value
 
     def get_admin_url(self):
         return reverse("admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=(self.id,))

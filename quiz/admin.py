@@ -4,6 +4,7 @@ from django.urls.base import reverse
 from django.utils.html import format_html
 
 from quiz.forms import QuestionAdminForm
+from quiz.models import Answer, Score
 from quiz.widgets import AdminImageWidget
 
 from .models import Category, Choice, Question
@@ -65,3 +66,23 @@ class QuestionAdminInline(admin.StackedInline):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     inlines = [QuestionAdminInline]
+
+
+@admin.register(Answer)
+class AnswerAdmin(admin.ModelAdmin):
+    list_display = ['student', 'question_body_image', 'student_answer', 'is_correct']
+    list_filter = ('student', 'question', 'is_correct')
+
+    def get_fieldsets(self, request, obj=None):
+        fs = super(AnswerAdmin, self).get_fieldsets(request, obj)
+        fs[0][1]['fields'] = list((field for field in fs[0][1]['fields'] if field != 'question'))
+        return fs
+
+    def get_readonly_fields(self, request, obj=None):
+        return [f.name for f in self.model._meta.fields] + ['question_body_image']
+
+    def question_body_image(self, obj):
+        return format_html(f'<span class="renderedMathJax">{obj.question.body}<span/>' +
+        f'<span><img src="{obj.question.image.url}" style="height:150px;width: auto" /><span/>' if obj.question.image and obj.question.image.url else None)
+
+    question_body_image.short_description = 'Question'
