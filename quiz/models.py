@@ -39,7 +39,7 @@ class Question(models.Model):
     image = models.ImageField(upload_to=RandomFileName("questions"), null=True, blank=True)
     difficulty = models.PositiveSmallIntegerField(choices=DIFFICULTY_CHOICES, default='5', db_index=True)
     correct_answer = models.CharField(max_length=200)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="question_category")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="%(class)s_category")
     type = models.IntegerField(choices=QuestionType.choices, default=QuestionType.mcq)
 
     # Methods
@@ -62,7 +62,7 @@ class Choice(models.Model):
     body = models.TextField(blank=True)
     image = models.ImageField(upload_to=RandomFileName("choices"), null=True, blank=True)
     question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name="choice_question"
+        Question, on_delete=models.CASCADE, related_name="%(class)s_question"
     )
 
     # def get_site_url(self):
@@ -77,9 +77,9 @@ class Answer(models.Model):
 
     # Fields
     student_answer = models.TextField(_("Answer"))
-    student = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="answer_student")
+    student = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="%(class)s_student")
     is_correct = models.BooleanField(_("Correct?"))
-    question = models.ForeignKey(Question, verbose_name=_("Question"), on_delete=models.CASCADE, related_name="answer_question")
+    question = models.ForeignKey(Question, verbose_name=_("Question"), on_delete=models.CASCADE, related_name="%(class)s_question")
 
     # Methods
     def __str__(self):
@@ -101,8 +101,8 @@ class Score(models.Model):
     SCORE_CHOICES = zip(range(0, 100), range(0, 100))
     value = models.PositiveSmallIntegerField(choices=SCORE_CHOICES, default=0)
 
-    category = models.ForeignKey(Category, verbose_name=_("Category"), on_delete=models.CASCADE, related_name="score_category")
-    student = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="score_student")
+    category = models.ForeignKey(Category, verbose_name=_("Category"), on_delete=models.CASCADE, related_name="%(class)s_category")
+    student = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="%(class)s_student")
 
     # Methods
     def __str__(self):
