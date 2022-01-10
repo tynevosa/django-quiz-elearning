@@ -77,9 +77,9 @@ class Answer(models.Model):
 
     # Fields
     student_answer = models.TextField(_("Answer"))
-    student = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE)
+    student = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="answer_student")
     is_correct = models.BooleanField(_("Correct?"))
-    question = models.ForeignKey("quiz.Question", verbose_name=_("Question"), on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, verbose_name=_("Question"), on_delete=models.CASCADE, related_name="answer_question")
 
     # Methods
     def __str__(self):
@@ -101,8 +101,8 @@ class Score(models.Model):
     SCORE_CHOICES = zip(range(0, 100), range(0, 100))
     value = models.PositiveSmallIntegerField(choices=SCORE_CHOICES, default=0)
 
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="score_category")
-    student = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, verbose_name=_("Category"), on_delete=models.CASCADE, related_name="score_category")
+    student = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="score_student")
 
     # Methods
     def __str__(self):
