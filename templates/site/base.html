@@ -14,7 +14,6 @@
         Quiz
         {% endblock page_title %}
     </title>
-
     {% block header_tags %}
 
     {% endblock header_tags %}
@@ -47,7 +46,9 @@
       </div>
 
       <!-- <div class="text-center"> Footer </div> -->
+      {% block extra_scripts %}
 
+      {% endblock extra_scripts %}
     <script> MathJax = { loader: { load: ['input/asciimath', 'output/chtml'] } } </script>
     <script defer type="text/javascript" id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js"></script>

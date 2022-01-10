@@ -1,22 +1,48 @@
-{% extends 'site/base.html' %}
+{% extends 'site/base.html' %} {% load static %}
 
 <!-- Start Content Block -->
 {% block content %}
-<div class="text-center">
-    {{question.body}}
-    <ul>
-        <li>{{choice.body}}</li>
-        {% for choice in question.choice_question.all %}
-            <li>{{choice.body}}</li>
-        {% endfor %}
-    </ul>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Submit Answer">
-    </form>
+<div class="text-center mb-8">{{question.id}}</div>
 
-</div>
+<form method="post">
+    {% csrf_token %}
+
+    <div class="text-center mb-8">{{question.body}}</div>
+
+    {% if question.type == 2 %}
+    <div class="text-center mb-8">
+        <div class="fieldWrapper">
+            {{ form.student_answer.errors }}
+            {{ form.student_answer }}
+        </div>
+    </div>
+    {% else %}
+    <div class="justify-center grid gap-5" style="grid-template-columns: repeat(auto-fit, minmax(300px, 500px))">
+        {% for choice in question.choice_question.all %}
+        <div>
+            <label for="choice{{forloop.counter0}}">
+                <div class="hover:opacity-90 hover:cursor-pointer">
+                    <input type="radio" id="choice{{forloop.counter0}}" name="student_answer"
+                        value="{{forloop.counter0}}" />
+
+                    {{choice.body}} {% if choice.image.url is not none %}
+
+                    <img src="{{ choice.image.url }}" />
+
+                    {% endif %}
+                </div>
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="flex justify-center">
+        <button type="submit" class="bg-sky-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-full">
+            Submit
+        </button>
+    </div>
+</form>
 
 {% endblock content %}
+
 <!-- End Content Block -->

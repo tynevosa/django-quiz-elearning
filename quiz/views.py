@@ -68,11 +68,14 @@ class AnswerQuestionView(LoginRequiredMixin, View):
             student_score = Score.objects.get(student=request.user)
         except:
             student_score = Score.objects.create(category=category, student=request.user)
-        finally:
+
+        try:
             current_question = self.__get_student_next_question(category_id, request.user.id, student_score.value)
             self.__set_question_in_cache(category_id, request.user.id, current_question.pk)
 
             return render(request, 'quiz/answer_question.html', { 'question': current_question, 'form': form })
+        except:
+            return redirect('quiz:category_list')
 
     def post(self, request, category_id):
         form = SubmitQuestionAnswer(request.POST)
@@ -141,7 +144,7 @@ class AnswerQuestionView(LoginRequiredMixin, View):
         # Get a random one of the already incorrectly solved ones
         randomSolvedQuestions = query \
             .annotate(final_attempt_is_correct=Max('answered__is_correct')) \
-            .filter(Q(answered__isnull=False) | Q(answered__is_correct=False), category_id=category_id, final_attempt_is_correct__lt=1) \
+            .filter(Q(answered__isnull=False) | Q(answered__is_correct=False), category_id=category_id, final_attempt_is_correct=False) \
             .values('id','body', 'category_id', 'correct_answer', 'difficulty', 'image', 'type', 'correct_answer', 'answered__student_id', 'answered__question_id', 'final_attempt_is_correct') \
             .order_by('difficulty') \
             .all()[:10]

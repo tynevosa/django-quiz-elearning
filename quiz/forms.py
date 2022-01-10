@@ -9,8 +9,7 @@ class SubmitQuestionAnswer(forms.ModelForm):
         model = Answer
         fields = ('student_answer',)
 
-    student_answer = forms.CharField(label='Your Answer', max_length=100, min_length=1, required=True)
-
+    student_answer = forms.CharField(widget=forms.Textarea(attrs={'rows':'2', 'cols': '40'}), label='Your Answer', max_length=100, min_length=1, required=True)
 
 class QuestionAdminForm(forms.ModelForm):
     body = forms.Textarea(attrs={'class': 'MathJaxSource'})
