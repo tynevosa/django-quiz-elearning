@@ -8,19 +8,12 @@ from quiz.models import Answer, StudentProfile
 
 
 class StudentProfileForm(forms.ModelForm):
-    # # TODO:: Add to model new student fields
-    # school = forms.CharField(max_length=100)
-    # country = forms.CharField(max_length=100)
-    # how_did_you_hear_about_us = forms.CharField(max_length=100)
-    # phone_number = forms.CharField(max_length=100)
-    # city = forms.CharField(max_length=100)
-    # school_type = forms.CharField(max_length=100, widget=forms.Select(choices=StudentProfile.SchoolTypeChoices.choices,  attrs={'class': 'browser-default'}))
     birth_date = forms.DateField(help_text='Required. Format: YYYY-MM-DD', widget=forms.DateInput(attrs={'type': 'date'}))
 
     class Meta:
         model = StudentProfile
         exclude = ['user']
-        
+
 
 
 class SubmitQuestionAnswer(forms.ModelForm):

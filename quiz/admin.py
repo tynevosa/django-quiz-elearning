@@ -65,6 +65,7 @@ class QuestionAdminInline(admin.StackedInline):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     inlines = [QuestionAdminInline]
+    list_display = ['name', 'is_active']
 
 
 @admin.register(Answer)
@@ -104,5 +105,14 @@ class StudentProfileAdmin(admin.ModelAdmin):
         return obj.user.email
 
     # Disable adding ones from dashboard
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(Score)
+class ScoreAdmin(admin.ModelAdmin):
+    # Disable adding ones from dashboard
+    readonly_fields = ['user', 'category']
+
     def has_add_permission(self, request):
         return False

@@ -15,7 +15,7 @@ from django.views import View
 from django.views.generic.list import ListView
 
 from quiz.forms import StudentProfileForm, SubmitQuestionAnswer
-from quiz.models import Answer, Category, Question, Score, StudentProfile
+from quiz.models import Category, Question, Score
 
 
 # Create your views here.
@@ -60,6 +60,7 @@ class CategoryListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return  Category.objects \
             .prefetch_related(Prefetch('score_category', queryset=Score.objects.filter(user=self.request.user), to_attr='user_score')) \
+            .filter(is_active=True) \
             .all()
 
 

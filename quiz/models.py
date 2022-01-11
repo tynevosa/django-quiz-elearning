@@ -11,6 +11,7 @@ from .helpers import RandomFileName
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=200)
+    is_active = models.BooleanField(_("Show in Quiz?"), default=True)
 
     class Meta:
         verbose_name = _("category")
@@ -107,7 +108,7 @@ class Score(models.Model):
 
     # Methods
     def __str__(self):
-        return self.value
+        return str(self.value)
 
     def get_admin_url(self):
         return reverse("admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=(self.id,))
