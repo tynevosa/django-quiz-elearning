@@ -1,11 +1,11 @@
 import random
 
+from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
-from django.db import connection
 from django.db.models import Max
 from django.db.models.query import Prefetch
 from django.db.models.query_utils import FilteredRelation, Q
@@ -13,8 +13,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.generic.list import ListView
 
-from quiz.forms import SubmitQuestionAnswer
-from quiz.models import Category, Question, Score
+from quiz.forms import SignUpForm, SubmitQuestionAnswer
+from quiz.models import Answer, Category, Question, Score
 
 
 # Create your views here.
@@ -25,21 +25,22 @@ def testmath(request):
 # Views
 @login_required
 def home(request):
-    return render(request, "registration/success.html", {})
+    return redirect('quiz:category_list')
 
 
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=password)
             login(request, user)
-            return redirect('quiz:home')
+            return redirect('quiz:category_list')
+
     else:
-        form = UserCreationForm()
+        form = SignUpForm()
     return render(request, 'registration/register.html', {'form': form})
 
 
@@ -85,13 +86,21 @@ class AnswerQuestionView(LoginRequiredMixin, View):
 
         answer = form.save(commit=False)
 
-        # TODO:: handle multiple tabs
         student_score = Score.objects.get(student=request.user)
         current_question = self.__get_student_next_question(category_id, request.user.id, student_score)
 
         answer.is_correct = answer.student_answer == current_question.correct_answer
         answer.student = request.user
         answer.question = current_question
+        # TODO:: handle multiple tabs
+        # try:
+        #     already_solved = Answer.objects.get(student=request.user, is_correct=True, question=answer.question)
+        #     if(already_solved is not None):
+        #         messages.error(request, 'This question was already solved')
+
+        #         return redirect('quiz:answer_question', category_id=category_id)
+        # except:
+            # Did not solve correctly before
         answer.save()
 
         student_score.value = self.__evaluate_new_score(answer.is_correct, current_question.difficulty, student_score.value)
@@ -145,10 +154,9 @@ class AnswerQuestionView(LoginRequiredMixin, View):
         randomSolvedQuestions = query \
             .annotate(final_attempt_is_correct=Max('answered__is_correct')) \
             .filter(Q(answered__isnull=False) | Q(answered__is_correct=False), category_id=category_id, final_attempt_is_correct=False) \
-            .values('id','body', 'category_id', 'correct_answer', 'difficulty', 'image', 'type', 'correct_answer', 'answered__student_id', 'answered__question_id', 'final_attempt_is_correct') \
+            .values('id', 'body', 'category_id', 'correct_answer', 'difficulty', 'image', 'type', 'correct_answer', 'answered__student_id', 'answered__question_id', 'final_attempt_is_correct') \
             .order_by('difficulty') \
             .all()[:10]
-
 
         current_question = Question.objects.get(pk=random.choice(list(randomSolvedQuestions))['id'])
 

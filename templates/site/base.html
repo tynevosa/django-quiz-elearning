@@ -7,6 +7,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+        integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     {% tailwind_css %}
 
     <title>
@@ -17,41 +20,45 @@
     {% block header_tags %}
 
     {% endblock header_tags %}
-
 </head>
 
 <body class="bg-gray-100">
-    <nav class="flex items-center justify-between flex-wrap bg-sky-600 p-6 pl-10 gap-10">
-        <div class="flex items-center flex-no-shrink text-white mr-6">
-          <img class="w-7 h-7" src="{% static 'images/brand-logo.png'%}">
-          <span class="font-semibold text-xl tracking-tight">E-Learning</span>
-        </div>
-        <div class="block lg:hidden">
-          <button class="flex items-center px-3 py-2 border rounded text-teal-lighter border-teal-light hover:text-white hover:border-white">
-            <svg class="h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
-          </button>
-        </div>
-        <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
-          <div class="text-sm lg:flex-grow">
-            <a href="{% url 'quiz:category_list' %}" class="block mt-4 font-bold lg:inline-block lg:mt-0 text-blue-200 hover:text-white mr-4">
-               Topics 
-            </a>
-        </div>
-      </nav>
+    {% include 'site/partials/header.html' %}
 
-      <div class="p-10">
-          {% block content %}
+    <div class="p-10">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                {% endfor %}
+        </ul>
+        {% endif %}
 
-          {% endblock content %}
-      </div>
+        {% block content %}
 
-      <!-- <div class="text-center"> Footer </div> -->
-      {% block extra_scripts %}
+        {% endblock content %}
+    </div>
 
-      {% endblock extra_scripts %}
-    <script> MathJax = { loader: { load: ['input/asciimath', 'output/chtml'] } } </script>
+    <!-- <div class="text-center"> Footer </div> -->
+    {% block extra_scripts %}
+
+    {% endblock extra_scripts %}
+    <script>
+        MathJax = {
+            loader: {
+                load: ['input/asciimath', 'output/chtml']
+            }
+        }
+    </script>
     <script defer type="text/javascript" id="MathJax-script" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js"></script>
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js">
+    </script>
+    <script>
+        const button = document.querySelector('#header-menu-button');
+        const menu = document.querySelector('#header-menu');
+
+        document.querySelector('#header-menu-button').addEventListener('click', () => menu.classList.toggle('hidden'));
+    </script>
 </body>
 
 </html>
