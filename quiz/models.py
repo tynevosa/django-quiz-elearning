@@ -38,7 +38,7 @@ class Question(models.Model):
     # Fields
     body = models.TextField(blank=True)
     image = models.ImageField(upload_to=RandomFileName("questions"), null=True, blank=True)
-    difficulty = models.PositiveSmallIntegerField(choices=DIFFICULTY_CHOICES, default='5', db_index=True)
+    difficulty = models.PositiveSmallIntegerField(choices=DIFFICULTY_CHOICES, default=5, db_index=True)
     correct_answer = models.CharField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="%(class)s_category")
     type = models.IntegerField(choices=QuestionType.choices, default=QuestionType.mcq)
@@ -134,13 +134,8 @@ class StudentProfile(models.Model):
     city = models.CharField(max_length=75, null=False, blank=False)
     how_did_you_hear_about_us = models.TextField(max_length=350, null=False, blank=False)
 
-
-# @receiver(post_save, sender=User)
-# def update_user_profile(sender, instance, created, **kwargs):
-#     if created:
-#         StudentProfile.objects.create(user=instance)
-#     instance.profile.save()
-
+    def __str__(self):
+        return self.user.first_name + self.user.last_name 
 
 @receiver(pre_save, sender=Question)
 def pre_save_question(sender, instance, *args, **kwargs):
