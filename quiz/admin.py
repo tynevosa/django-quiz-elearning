@@ -70,8 +70,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
-    list_display = ['student', 'question_body_image', 'student_answer', 'is_correct']
-    list_filter = ('student', 'question', 'is_correct')
+    list_display = ['user', 'question_body_image', 'user_answer', 'is_correct']
+    list_filter = ('user', 'question', 'is_correct')
 
     def get_fieldsets(self, request, obj=None):
         fs = super(AnswerAdmin, self).get_fieldsets(request, obj)

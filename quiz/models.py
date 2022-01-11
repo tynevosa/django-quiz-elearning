@@ -1,5 +1,6 @@
+from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import pre_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -76,14 +77,14 @@ class Answer(models.Model):
         verbose_name_plural = _("answers")
 
     # Fields
-    student_answer = models.TextField(_("Answer"))
-    student = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="%(class)s_student")
+    user_answer = models.TextField(_("Answer"))
+    user = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="%(class)s_answer")
     is_correct = models.BooleanField(_("Correct?"))
     question = models.ForeignKey(Question, verbose_name=_("Question"), on_delete=models.CASCADE, related_name="%(class)s_question")
 
     # Methods
     def __str__(self):
-        return self.student_answer
+        return self.user_answer
 
     def get_admin_url(self):
         return reverse("admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=(self.id,))
@@ -102,7 +103,7 @@ class Score(models.Model):
     value = models.PositiveSmallIntegerField(choices=SCORE_CHOICES, default=0)
 
     category = models.ForeignKey(Category, verbose_name=_("Category"), on_delete=models.CASCADE, related_name="%(class)s_category")
-    student = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="%(class)s_student")
+    user = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="%(class)s_user")
 
     # Methods
     def __str__(self):
@@ -113,6 +114,32 @@ class Score(models.Model):
 
     def get_site_url(self):
         return reverse("score_detail", kwargs={"pk": self.pk})
+
+
+class StudentProfile(models.Model):
+
+    class SchoolTypeChoices(models.TextChoices):
+        national_arabic = 'NAT_AR', 'National Arabic'
+        national_english = 'NAT_ENG', 'National English'
+        american = 'US', 'American'
+        ig = 'IG', 'IG'
+        other = 'OTHER', 'Other'
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="%(class)s_user")
+    school = models.CharField(max_length=75, null=False, blank=False)
+    school_type = models.CharField(max_length=30, choices=SchoolTypeChoices.choices,null=False, blank=False, default=SchoolTypeChoices.national_arabic)
+    phone_number = models.CharField(max_length=75, null=False, blank=False)
+    birth_date = models.DateField(null=True, blank=True)
+    country = models.CharField(max_length=75, null=False, blank=False)
+    city = models.CharField(max_length=75, null=False, blank=False)
+    how_did_you_hear_about_us = models.TextField(max_length=350, null=False, blank=False)
+
+
+# @receiver(post_save, sender=User)
+# def update_user_profile(sender, instance, created, **kwargs):
+#     if created:
+#         StudentProfile.objects.create(user=instance)
+#     instance.profile.save()
 
 
 @receiver(pre_save, sender=Question)

@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core import serializers
 from django.core.cache import cache
 from django.db.models import Max
 from django.db.models.query import Prefetch
@@ -13,8 +14,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.generic.list import ListView
 
-from quiz.forms import SignUpForm, SubmitQuestionAnswer
-from quiz.models import Answer, Category, Question, Score
+from quiz.forms import StudentProfileForm, SubmitQuestionAnswer
+from quiz.models import Answer, Category, Question, Score, StudentProfile
 
 
 # Create your views here.
@@ -30,21 +31,25 @@ def home(request):
 
 def register(request):
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')
+        user_form = UserCreationForm(request.POST)
+        student_profile_form = StudentProfileForm(request.POST)
+
+        if user_form.is_valid() and student_profile_form.is_valid():
+            user = user_form.save()
+            student_profile = student_profile_form.save(commit=False)
+            student_profile.user = user
+            student_profile.save()
+
+            username = user_form.cleaned_data.get('username')
+            password = user_form.cleaned_data.get('password1')
             user = authenticate(username=username, password=password)
             login(request, user)
             return redirect('quiz:category_list')
 
     else:
-        form = SignUpForm()
-    return render(request, 'registration/register.html', {'form': form})
-
-
-from django.core import serializers
+        user_form = UserCreationForm()
+        student_profile_form = StudentProfileForm()
+    return render(request, 'registration/register.html', {'user_form': user_form, 'student_profile_form': student_profile_form})
 
 
 class CategoryListView(LoginRequiredMixin, ListView):
@@ -54,7 +59,7 @@ class CategoryListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return  Category.objects \
-            .prefetch_related(Prefetch('score_category', queryset=Score.objects.filter(student=self.request.user), to_attr='student_score')) \
+            .prefetch_related(Prefetch('score_category', queryset=Score.objects.filter(user=self.request.user), to_attr='user_score')) \
             .all()
 
 
@@ -66,9 +71,9 @@ class AnswerQuestionView(LoginRequiredMixin, View):
         category = get_object_or_404(Category, pk=category_id)
 
         try:
-            student_score = Score.objects.get(student=request.user)
+            student_score = Score.objects.get(user=request.user)
         except:
-            student_score = Score.objects.create(category=category, student=request.user)
+            student_score = Score.objects.create(category=category, user=request.user)
 
         try:
             current_question = self.__get_student_next_question(category_id, request.user.id, student_score.value)
@@ -86,11 +91,11 @@ class AnswerQuestionView(LoginRequiredMixin, View):
 
         answer = form.save(commit=False)
 
-        student_score = Score.objects.get(student=request.user)
+        student_score = Score.objects.get(user=request.user)
         current_question = self.__get_student_next_question(category_id, request.user.id, student_score)
 
-        answer.is_correct = answer.student_answer == current_question.correct_answer
-        answer.student = request.user
+        answer.is_correct = answer.user_answer == current_question.correct_answer
+        answer.user = request.user
         answer.question = current_question
         # TODO:: handle multiple tabs
         # try:
@@ -140,7 +145,7 @@ class AnswerQuestionView(LoginRequiredMixin, View):
         difficulty_level = student_score / 10
 
         query = Question.objects.prefetch_related('choice_question') \
-            .annotate(answered=FilteredRelation('answer_question', condition=Q(answer_question__student=student_id,)),)
+            .annotate(answered=FilteredRelation('answer_question', condition=Q(answer_question__user=student_id,)),)
 
         # Unsolved questions based on difficulty
         current_question = query \
@@ -154,7 +159,7 @@ class AnswerQuestionView(LoginRequiredMixin, View):
         randomSolvedQuestions = query \
             .annotate(final_attempt_is_correct=Max('answered__is_correct')) \
             .filter(Q(answered__isnull=False) | Q(answered__is_correct=False), category_id=category_id, final_attempt_is_correct=False) \
-            .values('id', 'body', 'category_id', 'correct_answer', 'difficulty', 'image', 'type', 'correct_answer', 'answered__student_id', 'answered__question_id', 'final_attempt_is_correct') \
+            .values('id', 'body', 'category_id', 'correct_answer', 'difficulty', 'image', 'type', 'correct_answer', 'answered__user_id', 'answered__question_id', 'final_attempt_is_correct') \
             .order_by('difficulty') \
             .all()[:10]
 

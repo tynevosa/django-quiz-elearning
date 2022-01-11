@@ -1,20 +1,26 @@
 from django import forms
 from django.contrib.auth.forms import (AuthenticationForm, UserCreationForm,
                                        UsernameField)
-
 from django.contrib.auth.models import User
-from quiz.models import Answer
+from django.forms.widgets import DateInput
+
+from quiz.models import Answer, StudentProfile
 
 
-class SignUpForm(UserCreationForm):
-    # TODO:: Add to model new student fields
-    first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-    last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-    email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
+class StudentProfileForm(forms.ModelForm):
+    # # TODO:: Add to model new student fields
+    # school = forms.CharField(max_length=100)
+    # country = forms.CharField(max_length=100)
+    # how_did_you_hear_about_us = forms.CharField(max_length=100)
+    # phone_number = forms.CharField(max_length=100)
+    # city = forms.CharField(max_length=100)
+    # school_type = forms.CharField(max_length=100, widget=forms.Select(choices=StudentProfile.SchoolTypeChoices.choices,  attrs={'class': 'browser-default'}))
+    birth_date = forms.DateField(help_text='Required. Format: YYYY-MM-DD', widget=forms.DateInput(attrs={'type': 'date'}))
 
     class Meta:
-        model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2',)
+        model = StudentProfile
+        exclude = ['user']
+        
 
 
 class SubmitQuestionAnswer(forms.ModelForm):
