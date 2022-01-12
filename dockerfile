@@ -25,6 +25,10 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man \
   && apt-get clean 
 
+# Admin & session needed initialization
+RUN python manage.py migrate sessions;
+RUN python manage.py migrate admin;
+
 # Install Tailwind
 RUN python manage.py tailwind install --no-input;
 RUN python manage.py tailwind build --no-input;
