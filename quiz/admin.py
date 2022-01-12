@@ -82,7 +82,7 @@ class AnswerAdmin(admin.ModelAdmin):
         return [f.name for f in self.model._meta.fields] + ['question_body_image']
 
     def question_body_image(self, obj):
-        return format_html(f'<span class="renderedMathJax">{obj.question.body}<span/>' + 
+        return format_html(f'<span class="renderedMathJax">{obj.question.body}<span/>' +
         f'<span><img src="{obj.question.image.url}" style="height:150px;width: auto" /><span/>' if obj.question.image and obj.question.image.url else None)
 
     question_body_image.short_description = 'Question'
@@ -112,7 +112,14 @@ class StudentProfileAdmin(admin.ModelAdmin):
 @admin.register(Score)
 class ScoreAdmin(admin.ModelAdmin):
     # Disable adding ones from dashboard
+    list_display = ['student_name', 'category', 'total_score', ]
     readonly_fields = ['user', 'category']
+
+    def total_score(self, obj):
+        return obj.value
+
+    def student_name(self, obj):
+        return obj.user.first_name + obj.user.last_name
 
     def has_add_permission(self, request):
         return False
