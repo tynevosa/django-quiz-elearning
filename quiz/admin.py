@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.html import format_html
 
 from quiz.forms import QuestionAdminForm
-from quiz.models import Answer, Score, StudentProfile
+from quiz.models import Answer, Score
 from quiz.widgets import AdminImageWidget
 
 from .models import Category, Choice, Question
@@ -86,28 +86,6 @@ class AnswerAdmin(admin.ModelAdmin):
         f'<span><img src="{obj.question.image.url}" style="height:150px;width: auto" /><span/>' if obj.question.image and obj.question.image.url else None)
 
     question_body_image.short_description = 'Question'
-
-
-@admin.register(StudentProfile)
-class StudentProfileAdmin(admin.ModelAdmin):
-    list_filter = ('school',)
-    search_fields = ['user__first_name', 'user__last_name', 'user__email']
-    list_display = ['student_name', 'email', 'school', 'country', 'phone_number', 'city', 'birth_date', 'school_type']
-    readonly_fields = ['student_name', 'how_did_you_hear_about_us', ]
-    exclude = ['user']
-
-    def student_name(self, obj):
-        return obj.user.first_name + obj.user.last_name
-
-    student_name.short_description = 'Name'
-
-    def email(self, obj):
-        return obj.user.email
-
-    # Disable adding ones from dashboard
-    def has_add_permission(self, request):
-        return False
-
 
 @admin.register(Score)
 class ScoreAdmin(admin.ModelAdmin):

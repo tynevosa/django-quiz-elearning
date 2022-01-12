@@ -23,7 +23,7 @@
       </a>
     </div>
     <div class="lg:flex-grow lg:flex lg:justify-end">
-      <a href="{% url 'quiz:logout' %}" class="hover:opacity-70 block mt-4 font-bold lg:inline-block lg:mt-0 mr-4">
+      <a href="{% url 'authentication:logout' %}" class="hover:opacity-70 block mt-4 font-bold lg:inline-block lg:mt-0 mr-4">
         <span class="text-right">Logout</span>
         <span class="ml-2"><i class="fas fa-sign-out-alt"></i></span>
       </a>
@@ -33,12 +33,12 @@
   <div class="w-full hidden text-center md:flex-grow md:flex md:justify-end md:items-center md:w-auto"
     id="header-menu">
     <div class="text-sm hover:text-white">
-      <a href="{% url 'quiz:login' %}" class="block mt-4 font-bold md:inline-block md:mt-0  mr-4">
+      <a href="{% url 'authentication:login' %}" class="block mt-4 font-bold md:inline-block md:mt-0  mr-4">
         Login
       </a>
     </div>
     <div class="text-sm hover:text-white">
-      <a href="{% url 'quiz:register' %}" class="block mt-4 font-bold md:inline-block md:mt-0  mr-4">
+      <a href="{% url 'authentication:register' %}" class="block mt-4 font-bold md:inline-block md:mt-0  mr-4">
         Sign-up
       </a>
     </div>

@@ -1,19 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import (AuthenticationForm, UserCreationForm,
-                                       UsernameField)
-from django.contrib.auth.models import User
-from django.forms.widgets import DateInput
-
-from quiz.models import Answer, StudentProfile
-
-
-class StudentProfileForm(forms.ModelForm):
-    birth_date = forms.DateField(help_text='Required. Format: YYYY-MM-DD', widget=forms.DateInput(attrs={'type': 'date'}))
-
-    class Meta:
-        model = StudentProfile
-        exclude = ['user']
-
+from quiz.models import Answer
 
 
 class SubmitQuestionAnswer(forms.ModelForm):

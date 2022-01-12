@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'quiz',
     'jazzmin',
     'tailwind',
+    'authentication',
     'theme',
     'django_extensions',
     'django.contrib.admin',
@@ -276,9 +277,9 @@ JAZZMIN_SETTINGS = {
 }
 
 # Redirections
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/home/'
-LOGOUT_REDIRECT_URL = '/login/'
+LOGIN_URL = '/auth/login/'
+LOGIN_REDIRECT_URL = '/student/home/'
+LOGOUT_REDIRECT_URL = '/auth/login/'
 
 # Tailwind
 TAILWIND_APP_NAME = 'theme'

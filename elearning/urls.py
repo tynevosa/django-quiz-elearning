@@ -16,9 +16,17 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import include, path
+from django.urls.conf import re_path
+from quiz.views import home as home_view
 
 urlpatterns = [
-    path('student', include('quiz.urls')),
+    path('student/', include('quiz.urls')),
+    path('auth/', include('authentication.urls')),
     path('admin/', admin.site.urls),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] \
++static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
++[
+    re_path(r'.*', home_view)
+]
