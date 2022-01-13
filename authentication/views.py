@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import redirect, render
 from django.views import View
+
 from authentication.forms import StudentProfileForm
 
 # Create your views here.
@@ -30,3 +31,6 @@ class RegisterView(View):
             user = authenticate(username=username, password=password)
             login(request, user)
             return redirect('quiz:category_list')
+
+        return render(request, 'registration/register.html', {'user_form': user_form, 'student_profile_form': student_profile_form})
+

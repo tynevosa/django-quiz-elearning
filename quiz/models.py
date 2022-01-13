@@ -8,8 +8,20 @@ from django.utils.translation import gettext as _
 from .helpers import RandomFileName
 
 
+class MetaMethods():
+
+    def __str__(self):
+        return self.pk.__str__()
+
+    def get_admin_url(self):
+        return reverse("admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=(self.id,))
+
+    def get_site_url(self):
+        return reverse(f"{self._meta.model_name}_detail", kwargs={"pk": self.pk})
+
+
 # Create your models here.
-class Category(models.Model):
+class Category(models.Model, MetaMethods):
     name = models.CharField(max_length=200)
     is_active = models.BooleanField(_("Show in Quiz?"), default=True)
 
@@ -20,11 +32,8 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("category_detail", kwargs={"pk": self.pk})
 
-
-class Question(models.Model):
+class Question(models.Model, MetaMethods):
 
     class Meta:
         verbose_name = _("question")
@@ -44,18 +53,8 @@ class Question(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="%(class)s_category")
     type = models.IntegerField(choices=QuestionType.choices, default=QuestionType.mcq)
 
-    # Methods
-    def __str__(self):
-        return self.pk.__str__()
 
-    def get_admin_url(self):
-        return reverse("admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=(self.id,))
-
-    def get_site_url(self):
-        return reverse("question_detail", kwargs={"pk": self.pk})
-
-
-class Choice(models.Model):
+class Choice(models.Model, MetaMethods):
 
     class Meta:
         verbose_name = _("choice")
@@ -67,11 +66,8 @@ class Choice(models.Model):
         Question, on_delete=models.CASCADE, related_name="%(class)s_question"
     )
 
-    # def get_site_url(self):
-    #     return reverse("choice_detail", kwargs={"pk": self.pk})
 
-
-class Answer(models.Model):
+class Answer(models.Model, MetaMethods):
 
     class Meta:
         verbose_name = _("answer")
@@ -87,14 +83,8 @@ class Answer(models.Model):
     def __str__(self):
         return self.user_answer
 
-    def get_admin_url(self):
-        return reverse("admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=(self.id,))
 
-    def get_site_url(self):
-        return reverse("answer_detail", kwargs={"pk": self.pk})
-
-
-class Score(models.Model):
+class Score(models.Model, MetaMethods):
 
     class Meta:
         verbose_name = _("score")
@@ -110,11 +100,6 @@ class Score(models.Model):
     def __str__(self):
         return str(self.value)
 
-    def get_admin_url(self):
-        return reverse("admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name), args=(self.id,))
-
-    def get_site_url(self):
-        return reverse("score_detail", kwargs={"pk": self.pk})
 
 @receiver(pre_save, sender=Question)
 def pre_save_question(sender, instance, *args, **kwargs):
@@ -132,3 +117,14 @@ def pre_save_question(sender, instance, *args, **kwargs):
     except:
         pass
 
+
+# Auto disable categories with no questions
+@receiver(pre_save, sender=Category)
+def pre_save_category(sender, instance, *args, **kwargs):
+    """ instance old image file will delete from os """
+    try:
+        test = Question.objects.filter(category=instance).all()[:1]
+        if not test:
+            instance.is_active = False
+    except:
+        pass

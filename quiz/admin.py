@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.db import models
+from django.db import models, connection
+from django.db.models import Count
 from django.utils.html import format_html
 
 from quiz.forms import QuestionAdminForm
@@ -8,6 +9,12 @@ from quiz.widgets import AdminImageWidget
 
 from .models import Category, Choice, Question
 
+
+class AdminActionBtn():
+    def action_tag(self, obj):
+        return format_html(f'<a href="{obj.get_admin_url()}" title="View"> <i class="fas fa-edit fa-sm"></i> </a>')
+
+    action_tag.short_description = ''
 
 # Register your models here.
 class ChoiceAdminInline(admin.TabularInline):
@@ -20,7 +27,7 @@ class ChoiceAdminInline(admin.TabularInline):
 
 
 @admin.register(Question)
-class QuestionAdmin(admin.ModelAdmin):
+class QuestionAdmin(admin.ModelAdmin, AdminActionBtn):
     search_fields = ('body',)
     list_filter = ('type', 'category', 'difficulty')
     list_display = ('body', 'image_tag', 'type', 'difficulty', 'category', 'action_tag')
@@ -51,10 +58,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
     image_tag.short_description = 'Image'
 
-    def action_tag(self, obj):
-        return format_html(f'<a href="{obj.get_admin_url()}" title="View"> <i class="fas fa-eye fa-sm"></i> </a>')
 
-    action_tag.short_description = ''
 
 
 class QuestionAdminInline(admin.StackedInline):
@@ -63,14 +67,23 @@ class QuestionAdminInline(admin.StackedInline):
 
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(admin.ModelAdmin, AdminActionBtn):
     inlines = [QuestionAdminInline]
-    list_display = ['name', 'is_active']
+    list_display = ['name', 'is_active', 'number_of_questions', 'action_tag']
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.annotate(question_count=Count("question_category"))
+
+    def number_of_questions(self, obj):
+        return obj.question_count
+
+    number_of_questions.admin_order_field = 'question_count'
 
 
 @admin.register(Answer)
-class AnswerAdmin(admin.ModelAdmin):
-    list_display = ['user', 'question_body_image', 'user_answer', 'is_correct']
+class AnswerAdmin(admin.ModelAdmin, AdminActionBtn):
+    list_display = ['user', 'question_body_image', 'user_answer', 'is_correct', 'action_tag']
     list_filter = ('user', 'question', 'is_correct')
 
     def get_fieldsets(self, request, obj=None):
@@ -82,15 +95,16 @@ class AnswerAdmin(admin.ModelAdmin):
         return [f.name for f in self.model._meta.fields] + ['question_body_image']
 
     def question_body_image(self, obj):
-        return format_html(f'<span class="renderedMathJax">{obj.question.body}<span/>' +
+        return format_html(f'<span class="renderedMathJax">{obj.question.body}<span/>' + 
         f'<span><img src="{obj.question.image.url}" style="height:150px;width: auto" /><span/>' if obj.question.image and obj.question.image.url else None)
 
     question_body_image.short_description = 'Question'
 
+
 @admin.register(Score)
-class ScoreAdmin(admin.ModelAdmin):
+class ScoreAdmin(admin.ModelAdmin, AdminActionBtn):
     # Disable adding ones from dashboard
-    list_display = ['student_name', 'category', 'total_score', ]
+    list_display = ['student_name', 'category', 'total_score', 'action_tag']
     readonly_fields = ['user', 'category']
 
     def total_score(self, obj):
