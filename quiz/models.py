@@ -1,6 +1,5 @@
-from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -75,7 +74,7 @@ class Answer(models.Model, MetaMethods):
 
     # Fields
     user_answer = models.TextField(_("Answer"))
-    user = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="%(class)s_answer")
+    user = models.ForeignKey("authentication.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="%(class)s_answer")
     is_correct = models.BooleanField(_("Correct?"))
     question = models.ForeignKey(Question, verbose_name=_("Question"), on_delete=models.CASCADE, related_name="%(class)s_question")
 
@@ -94,7 +93,7 @@ class Score(models.Model, MetaMethods):
     value = models.PositiveSmallIntegerField(choices=SCORE_CHOICES, default=0)
 
     category = models.ForeignKey(Category, verbose_name=_("Category"), on_delete=models.CASCADE, related_name="%(class)s_category")
-    user = models.ForeignKey("auth.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="%(class)s_user")
+    user = models.ForeignKey("authentication.User", verbose_name=_("Student"), on_delete=models.CASCADE, related_name="%(class)s_user")
 
     # Methods
     def __str__(self):

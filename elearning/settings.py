@@ -172,7 +172,7 @@ JAZZMIN_SETTINGS = {
     "copyright": "Acme Library Ltd",
 
     # The model admin to search from the search bar, search bar omitted if excluded
-    "search_model": "auth.User",
+    "search_model": "authentication.User",
 
     # Field name on user model that contains avatar ImageField/URLField/Charfield or a callable that receives the user
     "user_avatar": None,
@@ -191,7 +191,7 @@ JAZZMIN_SETTINGS = {
         {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues", "new_window": True},
 
         # model admin to link to (Permissions checked against model)
-        {"model": "auth.User"},
+        {"model": "authentication.User"},
 
         # App with dropdown menu to all its models pages (Permissions checked against models)
         {"app": "books"},
@@ -204,7 +204,7 @@ JAZZMIN_SETTINGS = {
     # Additional links to include in the user menu on the top right ("app" url type is not allowed)
     "usermenu_links": [
         {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues", "new_window": True},
-        {"model": "auth.user"}
+        {"model": "authentication.user"}
     ],
 
     #############
@@ -220,7 +220,7 @@ JAZZMIN_SETTINGS = {
     # Hide these apps when generating side menu e.g (auth)
     "hide_apps": [],
 
-    # Hide these models when generating side menu (e.g auth.user)
+    # Hide these models when generating side menu (e.g authentication.user)
     "hide_models": [],
 
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
@@ -240,7 +240,7 @@ JAZZMIN_SETTINGS = {
     # for the full list of 5.13.0 free icon classes
     "icons": {
         "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user",
+        "authentication.user": "fas fa-user",
         "auth.Group": "fas fa-users",
     },
     # Icons that are used when one is not manually specified
@@ -273,7 +273,7 @@ JAZZMIN_SETTINGS = {
     # - carousel
     "changeform_format": "horizontal_tabs",
     # override change forms on a per modeladmin basis
-    "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
+    "changeform_format_overrides": {"authentication.user": "collapsible", "auth.group": "vertical_tabs"},
 }
 
 # Redirections
@@ -287,3 +287,5 @@ TAILWIND_DEV_MODE = DEBUG
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+AUTH_USER_MODEL= 'authentication.User'
