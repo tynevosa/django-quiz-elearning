@@ -63,3 +63,24 @@
   </div>
 </div>
 {% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+  integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer">
+</script>
+<script src="//geodata.solutions/includes/countrystatecity.js"></script>
+<script>
+  var hasExecuted = false
+  $(document).ajaxComplete(function () {
+    if (!hasExecuted) {
+      hasExecuted = true
+      $('#countryId [countryId="EG"]').prop('selected', 'selected').trigger("change")
+      $(document).ajaxComplete(function () {
+        $('#stateId option:eq(2)').prop('selected', true)
+      })
+    }
+  });
+</script>
+
+{% endblock %}
