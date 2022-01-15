@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.db import models, connection
+from django.db import connection, models
 from django.db.models import Count
 from django.utils.html import format_html
 
@@ -11,10 +11,11 @@ from .models import Category, Choice, Question
 
 
 class AdminActionBtn():
+
+    @admin.display(description='')
     def action_tag(self, obj):
         return format_html(f'<a href="{obj.get_admin_url()}" title="View"> <i class="fas fa-edit fa-sm"></i> </a>')
 
-    action_tag.short_description = ''
 
 # Register your models here.
 class ChoiceAdminInline(admin.TabularInline):
@@ -47,17 +48,14 @@ class QuestionAdmin(admin.ModelAdmin, AdminActionBtn):
         fs[0][1]['fields'] = ['body', 'renderedBody'] + list((field for field in fs[0][1]['fields'] if field != 'body' and field != 'renderedBody'))
         return fs
 
+    @admin.display(description='Preview')
     def renderedBody(self, obj):
         return format_html(f'<span class="renderedMathJax">{obj.body}<span/>')
 
-    renderedBody.short_description = 'Preview'
-
     # Preview Image in List view
+    @admin.display(description='Image')
     def image_tag(self, obj):
         return format_html(f'<img src="{obj.image.url}" style="height:150px;width: auto" />') if obj.image and obj.image.url else None
-
-    image_tag.short_description = 'Image'
-
 
 
 
@@ -75,10 +73,9 @@ class CategoryAdmin(admin.ModelAdmin, AdminActionBtn):
         queryset = super().get_queryset(request)
         return queryset.annotate(question_count=Count("question_category"))
 
+    @admin.display(ordering='question_count', description='Questions Number')
     def number_of_questions(self, obj):
         return obj.question_count
-
-    number_of_questions.admin_order_field = 'question_count'
 
 
 @admin.register(Answer)
@@ -94,11 +91,10 @@ class AnswerAdmin(admin.ModelAdmin, AdminActionBtn):
     def get_readonly_fields(self, request, obj=None):
         return [f.name for f in self.model._meta.fields] + ['question_body_image']
 
+    @admin.display(description='Question')
     def question_body_image(self, obj):
         return format_html(f'<span class="renderedMathJax">{obj.question.body}<span/>' + 
         f'<span><img src="{obj.question.image.url}" style="height:150px;width: auto" /><span/>' if obj.question.image and obj.question.image.url else None)
-
-    question_body_image.short_description = 'Question'
 
 
 @admin.register(Score)
